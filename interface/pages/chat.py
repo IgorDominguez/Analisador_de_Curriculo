@@ -2,6 +2,17 @@ import streamlit as st
 from config import URL_API
 import requests as rq
 
+# 1. Verificar se existem currículos salvos
+curriculos_existentes = False
+try:
+    res_get = rq.get(f"{URL_API}/upload/get")
+    if res_get.status_code == 200:
+        if len(res_get.json()) > 0:
+            curriculos_existentes = True
+except Exception as e:
+    st.error(f"Erro ao verificar currículos: {e}")
+
+
 if "messages" not in st.session_state:
     st.session_state.messages = []
     try:
@@ -30,31 +41,38 @@ with col2:
                 st.error(f"Erro ao limpar chat: {e}")
 
 
-
+# 2. Exibir mensagens do histórico
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.write(msg["content"])
 
-user_input = st.chat_input("Pergunte algo sobre o currículo...")
 
-if user_input:
-    with st.chat_message("user"):
-        st.write(user_input)
-    st.session_state.messages.append({"role": "user", "content": user_input})
-    
-    with st.spinner("Pensando..."):
-        try:
-            url = f"{URL_API}/chat/send"
-            payload = {"message": user_input}
-            resposta_post = rq.post(url, json=payload)
-            
-            if resposta_post.status_code == 200:
-                agent_response = resposta_post.json().get("response", "Sem resposta da API.")
-                st.session_state.messages.append({"role": "assistant", "content": agent_response})
-                st.rerun()
-            else:
-                st.error("Erro ao enviar mensagem.")
-        except Exception as e:
-            st.error(f"Erro ao conectar com a API: {e}")
+# 3. Gerenciar entrada do usuário com trava de segurança
+if not curriculos_existentes:
+    st.warning("⚠️ Você precisa salvar pelo menos um currículo na página de Upload antes de começar a conversar.")
+    st.chat_input("Bloqueado: Upload de currículo necessário", disabled=True)
+else:
+    user_input = st.chat_input("Pergunte algo sobre o currículo...")
+
+    if user_input:
+        with st.chat_message("user"):
+            st.write(user_input)
+        st.session_state.messages.append({"role": "user", "content": user_input})
+        
+        with st.spinner("Pensando..."):
+            try:
+                url = f"{URL_API}/chat/send"
+                payload = {"message": user_input}
+                resposta_post = rq.post(url, json=payload)
+                
+                if resposta_post.status_code == 200:
+                    agent_response = resposta_post.json().get("response", "Sem resposta da API.")
+                    st.session_state.messages.append({"role": "assistant", "content": agent_response})
+                    st.rerun()
+                else:
+                    st.error("Erro ao enviar mensagem.")
+            except Exception as e:
+                st.error(f"Erro ao conectar com a API: {e}")
+
 
 
