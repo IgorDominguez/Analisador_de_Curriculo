@@ -7,6 +7,7 @@ router = APIRouter()
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 DB_PATH_CURRICULOS = BASE_DIR / "curriculos.db"
+DB_PATH_ANALYTICS = BASE_DIR / "analytics.db"
 
 @router.post("/upload/send", tags=["Uploads"])
 async def enviar_curriculo(file: UploadFile = File(...)):
@@ -27,6 +28,9 @@ async def enviar_curriculo(file: UploadFile = File(...)):
         cursor = conn.cursor()
         cursor.execute("DELETE FROM curriculos")
         cursor.execute("INSERT INTO curriculos (user_id, titulo, conteudo) VALUES (?, ?, ?)", ("default", data["filename"], data["content"]))
+    with sq.connect(str(DB_PATH_ANALYTICS)) as conn:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM analytics")
 
     # return analisador_curriculo(data["content"], data["filename"])
     return data
