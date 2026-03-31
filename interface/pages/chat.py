@@ -25,20 +25,28 @@ if "messages" not in st.session_state:
     except Exception as e:
         st.error(f"Erro ao carregar histórico: {e}")
 
-col1, col2 = st.columns([3, 1], vertical_alignment="bottom")
+col1, col2 = st.columns([2, 2], vertical_alignment="bottom")
+
 
 with col1:
     st.title("Chat IA")
 
 with col2:
     has_messages = len(st.session_state.messages) > 0
-    if st.button("Limpar chat", use_container_width=True, type="secondary", disabled=not has_messages):
-        with st.spinner("Limpando..."):
-            try:
-                rq.delete(f"{URL_API}/chat/clear")
-                st.session_state.messages = []
-            except Exception as e:
-                st.error(f"Erro ao limpar chat: {e}")
+    c1, c2 = st.columns(2, gap="small")
+    with c1:
+        if st.button("Reiniciar", use_container_width=True):
+            st.rerun()
+    with c2:
+        if st.button("Limpar chat", use_container_width=True, type="secondary", disabled=not has_messages):
+            with st.spinner("Limpando..."):
+                try:
+                    rq.delete(f"{URL_API}/chat/clear")
+                    st.session_state.messages = []
+                except Exception as e:
+                    st.error(f"Erro ao limpar chat: {e}")
+
+
 
 
 # 2. Exibir mensagens do histórico
