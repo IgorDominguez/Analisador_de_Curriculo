@@ -1,5 +1,5 @@
 # Analisador de Currículos
-> Este projeto é apenas para treino, então essa documentação é apenas uma explicação do projeto e não uma documentação
+> Este projeto é apenas para treino, então esse texto é apenas uma explicação do projeto e não uma documentação
 
 O projeto consiste em um sistema para análise de currículos, onde você pode conversar e tirar dúvidas sobre o currículo com um Agente IA que tem todo o contexto do currículo, podendo também gerar análises pré-prontas.
 
